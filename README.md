@@ -22,14 +22,14 @@ Commands available via the `explorer` contextual menu:
 
 ## Requirements
 
-* [CVS client utility] (https://www.gnu.org/software/trans-coord/manual/cvs/cvs.html) should be accessible in the PATH
+* [CVS client utility](https://www.gnu.org/software/trans-coord/manual/cvs/cvs.html) should be accessible in the PATH
 * Visual Studio Code v1.51.0
 
 ## Extension Settings
 
 vscode-cvs extension contributes the following settings:
 
-* `vs-code.CVSROOT`: CVSROOT variable for passing it to [CVS client utility] (https://www.gnu.org/software/trans-coord/manual/cvs/cvs.html) 
+* `vs-code.CVSROOT`: CVSROOT variable for passing it to [CVS client utility](https://www.gnu.org/software/trans-coord/manual/cvs/cvs.html) 
 
 ## Release Notes
 
