@@ -101,7 +101,7 @@
   	"author": "mmarkeloff",
   	"repository": {
     	"type": "git",
-    	"url": "https://github.com/Microsoft/vscode-extension-vscode.git"
+    	"url": "https://github.com/mmarkeloff/vscode-cvs.git"
   	},
 	"extensionDependencies": [
 	]
