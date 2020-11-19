@@ -1,8 +1,17 @@
 {
 	"name": "vscode-cvs",
-	"displayName": "vscode-cvs",
-	"description": "",
+	"displayName": "CVS",
+	"description": "VS Code extension for CVS",
 	"version": "0.0.1",
+	"license": "MIT",
+	"author": "Max Markeloff",
+	"publisher": "mmarkeloff",
+	"icon": "logo.png",
+	"homepage": "https://github.com/mmarkeloff/vscode-cvs/blob/master/README.md",
+  	"repository": {
+    	"type": "git",
+    	"url": "https://github.com/mmarkeloff/vscode-cvs"
+	},
 	"engines": {
 		"vscode": "^1.51.0"
 	},
@@ -68,6 +77,16 @@
 					"group": "CodeCVS"
 				}
 			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "CVS configuration",
+			"properties": {
+				"vscode-cvs.CVSROOT": {
+					"type": "string",
+					"description": "CVSROOT variable"
+				}
+			}
 		}
 	},
 	"scripts": {
@@ -97,12 +116,6 @@
 		"webpack": "^4.44.1",
 		"webpack-cli": "^3.3.12"
 	},
-	"license": "MIT",
-  	"author": "mmarkeloff",
-  	"repository": {
-    	"type": "git",
-    	"url": "https://github.com/mmarkeloff/vscode-cvs.git"
-  	},
 	"extensionDependencies": [
 	]
 }
