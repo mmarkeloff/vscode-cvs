@@ -38,7 +38,7 @@ Command allows:
 
 vscode-cvs extension contributes the following settings:
 
-* `vs-code.CVSROOT`: [CVSROOT](https://wiki.gentoo.org/wiki/CVS/Tutorial#The_CVSROOT) variable
+* `vscode-cvs.CVSROOT`: [CVSROOT](https://wiki.gentoo.org/wiki/CVS/Tutorial#The_CVSROOT) variable
 
 ## Release Notes
 
