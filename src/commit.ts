@@ -186,7 +186,7 @@ class SelectedDirContentCommiter implements ICommiter {
                     /*
                         Array of paths with prefix 'X '
                     */
-                    const withPref = changes.split('\n');
+                    const withPref = changes.replace(/[\r\n]/g, '\n').split('\n');
 
                     for (const objWithPref of withPref) {
                         /*
