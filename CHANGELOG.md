@@ -4,6 +4,10 @@ All notable changes to the `vscode-cvs` extension will be documented in this fil
 
 ## Release Notes
 
+### 0.0.5
+
+Bug fixes
+
 ### 0.0.4
 
 * Merge 'CodeCVS: add opened file in current window' and 'CodeCVS: add local directory to repository' commands
