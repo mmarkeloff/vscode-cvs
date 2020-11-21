@@ -7,7 +7,7 @@ This is the Visual Studio Code extension to use CVS.
 ## Features
 
 Commands available via the `Command Palette`:
-* `CodeCVS: commit opened file in current window`
+* `CodeCVS: commit`
 * `CodeCVS: smart commit from local directory`
 * `CodeCVS: add opened file in current window`
 * `CodeCVS: add local directory to repository`

@@ -32,7 +32,7 @@
 		"commands": [
 			{
 				"command": "vscode-cvs.commit",
-				"title": "CodeCVS: commit opened file in current window"
+				"title": "CodeCVS: commit"
 			},
 			{
 				"command": "vscode-cvs.commit_content",
