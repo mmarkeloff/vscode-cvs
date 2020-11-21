@@ -6,8 +6,8 @@ All notable changes to the `vscode-cvs` extension will be documented in this fil
 
 ### 0.0.4
 
-Merge 'CodeCVS: add opened file in current window' and 'CodeCVS: add local directory to repository' commands.
-'CodeCVS: compare': revert FS changes if CVS operation did not complete correctly.
+* Merge 'CodeCVS: add opened file in current window' and 'CodeCVS: add local directory to repository' commands
+* 'CodeCVS: compare': revert FS changes if CVS operation did not complete correctly
 
 ### 0.0.3
 
