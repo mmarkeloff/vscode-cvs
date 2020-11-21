@@ -28,6 +28,10 @@ Command allows:
 
 `CodeCVS: smart commit from local directory` command will do exactly what `CodeCVS: show changes in local directory` command shows
 
+## CodeCVS: compare
+
+![](resources/compare_demo.gif)
+
 ## Requirements
 
 * CLI CVS client ([Windows](https://ftp.gnu.org/non-gnu/cvs/binary/stable/x86-woe/), [MacOS](https://formulae.brew.sh/formula/cvs)) should be accessible in the PATH

@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"author": "Max Markeloff",
 	"publisher": "mmarkeloff",
-	"icon": "logo.png",
+	"icon": "resources/logo.png",
 	"homepage": "https://github.com/mmarkeloff/vscode-cvs/blob/master/README.md",
 	"repository": {
 		"type": "git",
