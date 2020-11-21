@@ -72,22 +72,39 @@ class Comparator {
                     throw code;
                 }
 
-                err = await common.mv(this.m_FullFilePath, tempDir + '-clean-copy' + ext);
-                if (err) {
-                    vscode.window.showErrorMessage(`Unable to move clean copy of file: ${this.m_File}`);
-                    throw err;
-                }
+                /*
+                    Check that clean copy is really has been checkouted
+                */
+                fs.stat(this.m_FullFilePath, async (stat) => {
+                    if (stat && stat.code === 'ENOENT') {
+                        /*
+                            File not found
+                        */
+                        vscode.window.showErrorMessage(`Unable to get clean copy of file: ${this.m_File} from repository`);
 
-                err = await common.mv(this.m_FullFilePath + '.vscode-cvs.temp', this.m_FullFilePath);
-                if (err) {
-                    vscode.window.showErrorMessage(
-                        `Unable to restore backuped file: ${this.m_FullFilePath + '.vscode-cvs.temp'}`
-                    );
-                    throw err;
-                }
+                        err = await common.mv(this.m_FullFilePath + '.vscode-cvs.temp', this.m_FullFilePath);
+                        if (err) {
+                            vscode.window.showErrorMessage(`Unable to restore backuped file: ${this.m_File}`);
+                        }
+                    }
+                    else {
+                        err = await common.mv(this.m_FullFilePath, tempDir + '-clean-copy' + ext);
+                        if (err) {
+                            vscode.window.showErrorMessage(`Unable to move clean copy of file: ${this.m_File}`);
+                            throw err;
+                        }
 
-                //common.diff(this.m_FullFilePath, tempDir + '-clean-copy' + ext);
-                common.diff(tempDir + '-clean-copy' + ext, this.m_FullFilePath);
+                        err = await common.mv(this.m_FullFilePath + '.vscode-cvs.temp', this.m_FullFilePath);
+                        if (err) {
+                            vscode.window.showErrorMessage(
+                                `Unable to restore backuped file: ${this.m_FullFilePath + '.vscode-cvs.temp'}`
+                            );
+                            throw err;
+                        }
+
+                        common.diff(tempDir + '-clean-copy' + ext, this.m_FullFilePath);
+                    }
+                });
             }
         });
     }
