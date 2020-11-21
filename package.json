@@ -2,15 +2,15 @@
 	"name": "vscode-cvs",
 	"displayName": "CodeCVS",
 	"description": "VS Code extension for CVS",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"license": "MIT",
 	"author": "Max Markeloff",
 	"publisher": "mmarkeloff",
 	"icon": "logo.png",
 	"homepage": "https://github.com/mmarkeloff/vscode-cvs/blob/master/README.md",
-  	"repository": {
-    	"type": "git",
-    	"url": "https://github.com/mmarkeloff/vscode-cvs"
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mmarkeloff/vscode-cvs"
 	},
 	"engines": {
 		"vscode": "^1.51.0"
@@ -24,7 +24,8 @@
 		"onCommand:vscode-cvs.add",
 		"onCommand:vscode-cvs.add_dir",
 		"onCommand:vscode-cvs.show",
-		"onCommand:vscode-cvs.checkout"
+		"onCommand:vscode-cvs.checkout",
+		"onCommand:vscode-cvs.compare"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -52,6 +53,10 @@
 			{
 				"command": "vscode-cvs.checkout",
 				"title": "CodeCVS: checkout ..."
+			},
+			{
+				"command": "vscode-cvs.compare",
+				"title": "CodeCVS: compare"
 			}
 		],
 		"menus": {
@@ -116,6 +121,6 @@
 		"webpack": "^4.44.1",
 		"webpack-cli": "^3.3.12"
 	},
-	"extensionDependencies": [
-	]
+	"extensionDependencies": [],
+	"dependencies": {}
 }

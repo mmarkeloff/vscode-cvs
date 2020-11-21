@@ -4,6 +4,7 @@ import {commitOpenedFile, commitSelectedDirContent} from './commit';
 import {addOpenedFile, addSelectedDir} from './add';
 import {showChangesSelectedDir} from './show';
 import {checkoutModule} from './checkout';
+import {compareOpenedFile} from './compare';
 
 /*******************************************************************/
 /**
@@ -80,7 +81,14 @@ export function activate(context: vscode.ExtensionContext) {
 		checkoutModule(targetPath, cvsRoot as string, store);
 	});
 
-	context.subscriptions.push(commit, commit_content, add, add_dir, show, checkout);
+	/*
+		CodeCVS: compare
+	*/
+	const compare = vscode.commands.registerTextEditorCommand('vscode-cvs.compare', async (textEditor) => {
+		compareOpenedFile(textEditor.document.fileName, workDir, cvsRoot as string, store);
+	});
+
+	context.subscriptions.push(commit, commit_content, add, add_dir, show, checkout, compare);
 }
 
 /*******************************************************************/

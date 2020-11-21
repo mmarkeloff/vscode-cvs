@@ -13,6 +13,7 @@ Commands available via the `Command Palette`:
 * `CodeCVS: add local directory to repository`
 * `CodeCVS: show changes in local directory`
 * `CodeCVS: checkout ...`
+* `CodeCVS: compare`
 
 Commands available via the `explorer` contextual menu:
 * `CodeCVS: smart commit from local directory`
@@ -39,9 +40,3 @@ Command allows:
 vscode-cvs extension contributes the following settings:
 
 * `vscode-cvs.CVSROOT`: [CVSROOT](https://wiki.gentoo.org/wiki/CVS/Tutorial#The_CVSROOT) variable
-
-## Release Notes
-
-### 0.0.1
-
-Initial release of vscode-cvs

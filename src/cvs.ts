@@ -168,4 +168,36 @@ export class CVS {
                 });
         });
     }
+
+    /**
+     * Update single file operation
+     * @param file Relative file path
+     */
+    onUpdateSingleFile(file: string): Promise<number> {
+        let proc = spawn(
+            'cvs', 
+            ['-d', this.m_CVSRoot, 'update', file], 
+            {cwd: this.m_WorkDir});
+
+        return new Promise((resolve, reject) => {
+            proc.once('exit', (code: number, signal: string) => {
+                /*
+                    Done
+                */
+                resolve(code);
+            });
+
+            proc.once('error', (err: Error) => {
+                reject(err);
+            });
+
+            proc.stderr
+                .on("data", (chunk: string | Buffer) => {
+                    /*
+                        Print stderr to OUTPUT tab
+                    */
+                    this.m_Store.printToLog(chunk as string);
+                });
+        });
+    }
 }
