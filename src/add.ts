@@ -1,10 +1,12 @@
 import {window} from 'vscode';
+import * as fs from 'fs';
 import {Store} from './store';
 import {CVS} from './cvs';
 
 /*******************************************************************/
 /**
  * Interface for add some local object to remote repository
+ * @warning Only single object
  */
 interface IAdder {
     /**
@@ -29,31 +31,32 @@ interface IAdder {
 
 /*******************************************************************/
 /**
- * Class for add opened text file in current VS Code window to remote repository
+ * Class for add selected text file in VS Code explorer to remote repository
+ * @warning Only single file
  */
-class OpenedTextFileAdder implements IAdder {
+class SelectedTextFileAdder implements IAdder {
     m_CVSRoot: string;
     m_WorkDir: string;
 
     /**
-     * Relative path to opened text file in current VS Code window
+     * Relative path to selected text file in VS Code explorer
      */
-    m_OpenedFile: string;
+    m_SelectedFile: string;
 
     /**
      * Create an object
      * @param cvsRoot CVSROOT variable
-     * @param workDir Working directory for run cvs client utility
-     * @param openedFile Relative path to opened text file in current VS Code window
+     * @param workDir Working directory for run CVS client utility
+     * @param selectedFile Relative path to selected text file in VS Code explorer
      */
-    constructor(cvsRoot: string, workDir: string, openedFile: string) {
+    constructor(cvsRoot: string, workDir: string, selectedFile: string) {
         this.m_CVSRoot = cvsRoot;
         this.m_WorkDir = workDir;
-        this.m_OpenedFile = openedFile;
+        this.m_SelectedFile = selectedFile;
     }
 
     /**
-     * Add opened text file in current VS Code window to remote repository
+     * Add selected text file in VS Code explorer to remote repository
      * @param store Stores some runtime info
      */
     async add(store: Store) {
@@ -62,43 +65,44 @@ class OpenedTextFileAdder implements IAdder {
         /*
             Waiting for the command to complete
         */
-        const code = await cvs.onAddText(this.m_OpenedFile);
+        const code = await cvs.onAddText(this.m_SelectedFile);
         if (code) {
-            window.showErrorMessage(`Unable to add opened text file in current window: ${this.m_OpenedFile}`);
+            window.showErrorMessage(`Unable to add selected text file to repository: ${this.m_SelectedFile}`);
         }
         else {
-            window.showInformationMessage(`Opened text file in current window: ${this.m_OpenedFile} has been added`);
+            window.showInformationMessage(`Selected text file: ${this.m_SelectedFile} has been added to repository`);
         }
     }
 }
 
 /*******************************************************************/
 /**
- * Class for add opened binary file in current VS Code window to remote repository
+ * Class for add selected binary file in VS Code explorer to remote repository
+ * @warning Only single file
  */
-class OpenedBinaryFileAdder implements IAdder {
+class SelectedBinaryFileAdder implements IAdder {
     m_CVSRoot: string;
     m_WorkDir: string;
 
     /**
-     * Relative path to opened binary file in current VS Code window
+     * Relative path to selected binary file in VS Code explorer
      */
-    m_OpenedFile: string;
+    m_SelectedFile: string;
 
     /**
      * Create an object
      * @param cvsRoot CVSROOT variable
-     * @param workDir Working directory for run cvs client utility
-     * @param openedFile Relative path to opened binary file in current VS Code window
+     * @param workDir Working directory for run CVS client utility
+     * @param openedFile Relative path to selected binary file in VS Code explorer
      */
-    constructor(cvsRoot: string, workDir: string, openedFile: string) {
+    constructor(cvsRoot: string, workDir: string, selectedFile: string) {
         this.m_CVSRoot = cvsRoot;
         this.m_WorkDir = workDir;
-        this.m_OpenedFile = openedFile;
+        this.m_SelectedFile = selectedFile;
     }
 
     /**
-     * Add opened binary file in current VS Code window to remote repository
+     * Add selected binary file in VS Code explorer to remote repository
      * @param store Stores some runtime info
      */
     async add(store: Store) {
@@ -107,12 +111,14 @@ class OpenedBinaryFileAdder implements IAdder {
         /*
             Waiting for the command to complete
         */
-        const code = await cvs.onAddText(this.m_OpenedFile);
+        const code = await cvs.onAddBinary(this.m_SelectedFile);
         if (code) {
-            window.showErrorMessage(`Unable to add opened binary file in current window: ${this.m_OpenedFile}`);
+            window.showErrorMessage(`Unable to add selected binary file: ${this.m_SelectedFile} to repository`);
         }
         else {
-            window.showInformationMessage(`Opened binary file in current window: ${this.m_OpenedFile} has been added`);
+            window.showInformationMessage(
+                `Selected binary file: ${this.m_SelectedFile} has been added to repository`
+            );
         }
     }
 }
@@ -165,50 +171,48 @@ class SelectedDirAdder implements IAdder {
 
 /*******************************************************************/
 /**
- * Add opened file in current VS Code window to remote repository
- * @param openedFile Absolute path to opened file in current VS Code window 
- * @param workDir Working directory for run cvs client utility
+ * Add selected object in VS Code explorer to remote repository
+ * @param selectedObj Full object path
+ * @param workDir Working directory for run CVS client utility
  * @param cvsRoot CVSROOT variable
  * @param store Stores some runtime info
  */
-export async function addOpenedFile(openedFile: string, workDir: string, cvsRoot: string, store: Store) {
-    /*
-        Make relative path to opened file in current VS Code window
-        Example: openedFile='/a/b/c/d.txt' + workDir='/a/b' => file='c/d.txt'
-    */
-    const file = openedFile.replace(workDir + '/', '');
+export async function addSelectedObj(selectedObj: string, workDir: string, cvsRoot: string, store: Store) {
+    const obj = selectedObj.replace(workDir + '/', '');
+    fs.lstat(selectedObj, async (err, stat) => {
+        if (err) {
+            window.showErrorMessage(
+                `Unable to check file or directory has been selected: ${selectedObj}`
+            );
+        }
+        else {
+            let adder: IAdder | undefined = undefined
 
-    window.showInformationMessage(`Select file type`);
-    const choice = await window.showQuickPick(
-        ['text', 'binary'], 
-        {placeHolder: 'text or binary'}
-    );
+            /*
+                Selected object is file
+            */
+            if (stat.isFile()) {
+                window.showInformationMessage(`Select file type`);
+                const choice = await window.showQuickPick(
+                    ['text', 'binary'], 
+                    {placeHolder: 'text or binary'}
+                );
 
-    let adder: IAdder
-    if (choice === 'text') {
-        adder = new OpenedTextFileAdder(cvsRoot, workDir, file);
-    }
-    else {
-        adder = new OpenedBinaryFileAdder(cvsRoot, workDir, file);
-    }
-    adder.add(store);
-}
+                if (choice === 'text') {
+                    adder = new SelectedTextFileAdder(cvsRoot, workDir, obj);
+                }
+                else {
+                    adder = new SelectedBinaryFileAdder(cvsRoot, workDir, obj);
+                }
+            } 
+            /*
+                Selected object is directory
+            */
+            else if (stat.isDirectory()) {
+                adder = new SelectedDirAdder(cvsRoot, workDir, obj);
+            }
 
-/*******************************************************************/
-/**
- * Add selected directory in VS Code explorer to remote repository
- * @param selectedDir Absolute path to selected directory in VS Code explorer
- * @param workDir Working directory for run cvs client utility
- * @param cvsRoot CVSROOT variable
- * @param store Stores some runtime info
- */
-export async function addSelectedDir(selectedDir: string, workDir: string, cvsRoot: string, store: Store) {
-    /*
-        Make relative path to selected directory in VS Code explorer
-        Example: selectedDir='/a/b/c' + workDir='/a' => dir='b/c'
-    */
-    const dir = selectedDir.replace(workDir + '/', '');
-
-    let adder: IAdder = new SelectedDirAdder(cvsRoot, workDir, dir);
-    adder.add(store);
+            adder!.add(store);
+        }
+    });
 }

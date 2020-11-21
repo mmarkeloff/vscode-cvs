@@ -9,15 +9,13 @@ This is the Visual Studio Code extension to use CVS.
 Commands available via the `Command Palette`:
 * `CodeCVS: commit`
 * `CodeCVS: smart commit from local directory`
-* `CodeCVS: add opened file in current window`
-* `CodeCVS: add local directory to repository`
 * `CodeCVS: show changes in local directory`
 * `CodeCVS: checkout ...`
 * `CodeCVS: compare`
 
 Commands available via the `explorer` contextual menu:
 * `CodeCVS: smart commit from local directory`
-* `CodeCVS: add local directory to repository`
+* `CodeCVS: add`
 * `CodeCVS: show changes in local directory`
 * `CodeCVS: checkout ...`
 

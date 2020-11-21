@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import {Store} from './store';
 import {commitOpenedFile, commitSelectedDirContent} from './commit';
-import {addOpenedFile, addSelectedDir} from './add';
+import {addSelectedObj} from './add';
 import {showChangesSelectedDir} from './show';
 import {checkoutModule} from './checkout';
 import {compareOpenedFile} from './compare';
@@ -52,17 +52,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	/*
-		CodeCVS: add opened file in current window
+		CodeCVS: add
 	*/
-	const add = vscode.commands.registerTextEditorCommand('vscode-cvs.add', async (textEditor) => {
-		addOpenedFile(textEditor.document.fileName, workDir, cvsRoot as string, store);
-	});
-
-	/*
-		CodeCVS: add local directory to repository
-	*/
-	const add_dir = vscode.commands.registerCommand('vscode-cvs.add_dir', async (fileUri) => {
-		addSelectedDir(fileUri.fsPath, workDir ,cvsRoot as string, store);
+	const add = vscode.commands.registerCommand('vscode-cvs.add', async (fileUri) => {
+		let targetPath = fileUri === undefined ? workDir : fileUri.fsPath;
+		addSelectedObj(targetPath, workDir ,cvsRoot as string, store);
 	});
 
 	/*
@@ -88,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
 		compareOpenedFile(textEditor.document.fileName, workDir, cvsRoot as string, store);
 	});
 
-	context.subscriptions.push(commit, commit_content, add, add_dir, show, checkout, compare);
+	context.subscriptions.push(commit, commit_content, add, show, checkout, compare);
 }
 
 /*******************************************************************/

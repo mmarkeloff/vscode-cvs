@@ -40,11 +40,7 @@
 			},
 			{
 				"command": "vscode-cvs.add",
-				"title": "CodeCVS: add opened file in current window"
-			},
-			{
-				"command": "vscode-cvs.add_dir",
-				"title": "CodeCVS: add local directory to repository"
+				"title": "CodeCVS: add"
 			},
 			{
 				"command": "vscode-cvs.show",
@@ -67,8 +63,7 @@
 					"group": "CodeCVS"
 				},
 				{
-					"when": "explorerResourceIsFolder",
-					"command": "vscode-cvs.add_dir",
+					"command": "vscode-cvs.add",
 					"group": "CodeCVS"
 				},
 				{
