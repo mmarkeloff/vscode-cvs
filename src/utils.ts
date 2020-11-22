@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import * as vscode from 'vscode';
 import Store from './store';
 import * as Commands from './commands';
+import { indexOf } from 'lodash';
 
 /*******************************************************************/
 /**
@@ -24,7 +25,7 @@ const Utils = {
             // commit, add, checkout, etc..
             const commandName = _.last(command.split('.')) as string;
             // command callback
-            const handler = Commands[commandName];
+            const handler = (Commands as any)[commandName];
 
             const disposable = vscode.commands.registerCommand(command, (fileUri) => {
                 handler(fileUri, store)
