@@ -1,17 +1,17 @@
+/*******************************************************************/
+/**
+ * Imports
+ */
 import {OutputChannel} from 'vscode';
 
 /*******************************************************************/
 /**
  * Class for store some runtime info
  */
-export class Store {
-    /**
-     * Last commited comment
-     */
+class Store {
+    /** Last commited comment */
     private m_LastComment: string;
-    /**
-     * OUTPUT tab object
-     */
+    /** OUTPUT tab object */
     private m_Log: OutputChannel;
 
     /**
@@ -46,3 +46,9 @@ export class Store {
         this.m_Log.appendLine(str);
     }
 }
+
+/*******************************************************************/
+/**
+ * Exports
+ */
+export default Store;

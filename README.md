@@ -12,21 +12,18 @@ Commands available via the `Command Palette`:
 * `CodeCVS: show changes in local directory`
 * `CodeCVS: checkout ...`
 * `CodeCVS: compare`
+* `CodeCVS: update`
 
 Commands available via the `explorer` contextual menu:
 * `CodeCVS: smart commit from local directory`
 * `CodeCVS: add`
 * `CodeCVS: show changes in local directory`
 * `CodeCVS: checkout ...`
+* `CodeCVS: update`
 
-## CodeCVS: smart commit from local directory
+## CodeCVS: commit
 
-Command allows:
-* remove locally removed files and directories from the remote CVS repository
-* add locally added files and directories to the remote CVS repository
-* commit all contributed changes
-
-`CodeCVS: smart commit from local directory` command will do exactly what `CodeCVS: show changes in local directory` command shows
+![](resources/commit_demo.gif)
 
 ## CodeCVS: compare
 

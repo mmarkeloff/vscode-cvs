@@ -2,7 +2,7 @@
 	"name": "vscode-cvs",
 	"displayName": "CodeCVS",
 	"description": "VS Code extension for CVS",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"license": "MIT",
 	"author": "Max Markeloff",
 	"publisher": "mmarkeloff",
@@ -22,10 +22,10 @@
 		"onCommand:vscode-cvs.commit",
 		"onCommand:vscode-cvs.commit_content",
 		"onCommand:vscode-cvs.add",
-		"onCommand:vscode-cvs.add_dir",
 		"onCommand:vscode-cvs.show",
 		"onCommand:vscode-cvs.checkout",
-		"onCommand:vscode-cvs.compare"
+		"onCommand:vscode-cvs.compare",
+		"onCommand:vscode-cvs.update"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -53,6 +53,10 @@
 			{
 				"command": "vscode-cvs.compare",
 				"title": "CodeCVS: compare"
+			},
+			{
+				"command": "vscode-cvs.update",
+				"title": "CodeCVS: update"
 			}
 		],
 		"menus": {
@@ -74,6 +78,11 @@
 				{
 					"when": "explorerResourceIsFolder",
 					"command": "vscode-cvs.checkout",
+					"group": "CodeCVS"
+				},
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "vscode-cvs.update",
 					"group": "CodeCVS"
 				}
 			]
@@ -101,21 +110,25 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.51.0",
+		"@types/absolute": "0.0.29",
 		"@types/glob": "^7.1.3",
+		"@types/lodash": "^4.14.165",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^12.11.7",
-		"eslint": "^7.9.0",
+		"@types/vscode": "^1.51.0",
 		"@typescript-eslint/eslint-plugin": "^4.1.1",
 		"@typescript-eslint/parser": "^4.1.1",
+		"eslint": "^7.9.0",
 		"glob": "^7.1.6",
 		"mocha": "^8.1.3",
+		"ts-loader": "^8.0.3",
 		"typescript": "^4.0.2",
 		"vscode-test": "^1.4.0",
-		"ts-loader": "^8.0.3",
 		"webpack": "^4.44.1",
 		"webpack-cli": "^3.3.12"
 	},
 	"extensionDependencies": [],
-	"dependencies": {}
+	"dependencies": {
+		"lodash": "^4.17.4"
+	}
 }

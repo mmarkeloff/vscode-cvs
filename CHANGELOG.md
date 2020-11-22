@@ -4,6 +4,11 @@ All notable changes to the `vscode-cvs` extension will be documented in this fil
 
 ## Release Notes
 
+### 0.0.6
+
+Added:
+* 'CodeCVS: update' command
+
 ### 0.0.5
 
 Bug fixes
