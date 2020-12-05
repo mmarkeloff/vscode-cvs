@@ -4,22 +4,11 @@ Visual Studio Code extension for CVS support
 
 This is the Visual Studio Code extension to use CVS.
 
+## Setting up
+
+![](resources/setting_up.gif)
+
 ## Features
-
-Commands available via the `Command Palette`:
-* `CodeCVS: commit`
-* `CodeCVS: smart commit from local directory`
-* `CodeCVS: show changes in local directory`
-* `CodeCVS: checkout ...`
-* `CodeCVS: compare`
-* `CodeCVS: update`
-
-Commands available via the `explorer` contextual menu:
-* `CodeCVS: smart commit from local directory`
-* `CodeCVS: add`
-* `CodeCVS: show changes in local directory`
-* `CodeCVS: checkout ...`
-* `CodeCVS: update`
 
 ## CodeCVS: commit
 
@@ -29,6 +18,22 @@ Commands available via the `explorer` contextual menu:
 
 ![](resources/compare_demo.gif)
 
+## CodeCVS: changes
+
+![](resources/show_demo.gif)
+
+## CodeCVS: add
+
+![](resources/add_demo.gif)
+
+## CodeCVS: commit content
+
+![](resources/commit_content_demo.gif)
+
+## Output
+
+`CodeCVS` extension duplicates stderr of the CLI CVS client to the OUTPUT tab. To see CVS errors, select `vscode-cvs` from the contextual menu.
+
 ## Requirements
 
 * CLI CVS client ([Windows](https://ftp.gnu.org/non-gnu/cvs/binary/stable/x86-woe/), [MacOS](https://formulae.brew.sh/formula/cvs)) should be accessible in the PATH
@@ -36,6 +41,6 @@ Commands available via the `explorer` contextual menu:
 
 ## Extension Settings
 
-vscode-cvs extension contributes the following settings:
+`CodeCVS` extension contributes the following settings:
 
 * `vscode-cvs.CVSROOT`: [CVSROOT](https://wiki.gentoo.org/wiki/CVS/Tutorial#The_CVSROOT) variable

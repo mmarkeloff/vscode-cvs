@@ -6,7 +6,6 @@ import * as _ from 'lodash';
 import * as vscode from 'vscode';
 import Store from './store';
 import * as Commands from './commands';
-import { indexOf } from 'lodash';
 
 /*******************************************************************/
 /**
@@ -32,7 +31,6 @@ const Utils = {
             });
 
             context.subscriptions.push(disposable);
-
         });
 
         return Commands;

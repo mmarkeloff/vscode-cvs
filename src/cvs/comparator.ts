@@ -5,7 +5,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as os from 'os';
 import Store from '../store';
 import Utils from '../utils';
 import CVS from './cvs';
@@ -58,73 +57,70 @@ class OpenedFileWithLatestCleanCopyComparator implements IComparator {
         this.m_FullFilePath = fullFilePath;
     }
 
-    private diff(lhs: string, rhs: string) {
-        const lhsUri = vscode.Uri.file(lhs);
-        const rhsUri = vscode.Uri.file(rhs);
-        return vscode.commands.executeCommand('vscode.diff', lhsUri, rhsUri, 'remote ↔ local');
-    }
-
     /**
      * Compare opened file in current VS Code window with latest clean copy from repository
      * @param store Stores some runtime info
      */
     async compare(store: Store) {
-        fs.mkdtemp(path.join(os.tmpdir(), 'vscode-cvs-'), async (err, tempDir) => {
-            if (err) {
-                vscode.window.showErrorMessage('Unable to create temp directory');
+        let err = await Utils.file.mv(this.m_FullFilePath, this.m_FullFilePath + '.temp');
+        if (err) {
+            vscode.window.showErrorMessage(`Unable to backup opened file: ${this.m_File}`);
+            throw err;
+        }
+
+        let cvs: CVS = new CVS(this.m_CVSRoot, this.m_WorkDir, store);
+        const code = await cvs.onUpdateSingleFile(this.m_File);
+        if (code) {
+            vscode.window.showErrorMessage(`Unable to get clean copy of file: ${this.m_File} from repository`);
+            throw code;
+        }
+
+        // Check that clean copy is really has been checkouted
+        fs.stat(this.m_FullFilePath, async (stat) => {
+            if (stat && stat.code === 'ENOENT') {
+                // File not found
+                vscode.window.showErrorMessage(`Unable to get clean copy of file: ${this.m_File} from repository`);
+
+                err = await Utils.file.mv(this.m_FullFilePath + '.temp', this.m_FullFilePath);
+                if (err) {
+                    vscode.window.showErrorMessage(`Unable to restore backuped file: ${this.m_File}`);
+                }
             }
             else {
-                let err: number
-                const ext = path.parse(this.m_FullFilePath).ext
+                // File found
+                const cleanCopy = path.parse(this.m_FullFilePath).dir + path.sep +
+                    path.parse(this.m_FullFilePath).name + '-clean-copy' + path.parse(this.m_FullFilePath).ext
 
-                err = await Utils.file.mv(this.m_FullFilePath, this.m_FullFilePath + '.vscode-cvs.temp');
+                err = await Utils.file.mv(this.m_FullFilePath, cleanCopy);
                 if (err) {
-                    vscode.window.showErrorMessage(`Unable to backup opened file: ${this.m_File}`);
+                    vscode.window.showErrorMessage(`Unable to move clean copy of file: ${this.m_File}`);
                     throw err;
                 }
 
-                let cvs: CVS = new CVS(this.m_CVSRoot, this.m_WorkDir, store);
-                const code = await cvs.onUpdateSingleFile(this.m_File);
-                if (code) {
-                    vscode.window.showErrorMessage(`Unable to get clean copy of file: ${this.m_File} from repository`);
-                    throw code;
+                err = await Utils.file.mv(this.m_FullFilePath + '.temp', this.m_FullFilePath);
+                if (err) {
+                    vscode.window.showErrorMessage(
+                        `Unable to restore backuped file: ${this.m_FullFilePath + '.temp'}`
+                    );
+                    throw err;
                 }
 
-                /*
-                    Check that clean copy is really has been checkouted
-                */
-                fs.stat(this.m_FullFilePath, async (stat) => {
-                    if (stat && stat.code === 'ENOENT') {
-                        /*
-                            File not found
-                        */
-                        vscode.window.showErrorMessage(`Unable to get clean copy of file: ${this.m_File} from repository`);
-
-                        err = await Utils.file.mv(this.m_FullFilePath + '.vscode-cvs.temp', this.m_FullFilePath);
-                        if (err) {
-                            vscode.window.showErrorMessage(`Unable to restore backuped file: ${this.m_File}`);
-                        }
-                    }
-                    else {
-                        err = await Utils.file.mv(this.m_FullFilePath, tempDir + '-clean-copy' + ext);
-                        if (err) {
-                            vscode.window.showErrorMessage(`Unable to move clean copy of file: ${this.m_File}`);
-                            throw err;
-                        }
-
-                        err = await Utils.file.mv(this.m_FullFilePath + '.vscode-cvs.temp', this.m_FullFilePath);
-                        if (err) {
-                            vscode.window.showErrorMessage(
-                                `Unable to restore backuped file: ${this.m_FullFilePath + '.vscode-cvs.temp'}`
-                            );
-                            throw err;
-                        }
-
-                        this.diff(tempDir + '-clean-copy' + ext, this.m_FullFilePath);
+                // Remove checkouted clean copy after closing VS Code text editor window
+                vscode.workspace.onDidCloseTextDocument((closedFile: vscode.TextDocument) => {
+                    if (closedFile.fileName === cleanCopy) {
+                        fs.unlink(cleanCopy, (err) => {})
                     }
                 });
+
+                this.diff(cleanCopy, this.m_FullFilePath);
             }
         });
+    }
+
+    private diff(lhs: string, rhs: string) {
+        const lhsUri = vscode.Uri.file(lhs);
+        const rhsUri = vscode.Uri.file(rhs);
+        return vscode.commands.executeCommand('vscode.diff', lhsUri, rhsUri, 'remote ↔ local');
     }
 }
 

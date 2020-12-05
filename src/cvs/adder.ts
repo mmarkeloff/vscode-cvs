@@ -3,7 +3,6 @@
  * Imports
  */
 import {window} from 'vscode';
-import * as fs from 'fs';
 import Store from '../store';
 import CVS from './cvs';
 

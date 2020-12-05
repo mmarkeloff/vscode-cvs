@@ -36,7 +36,7 @@
 			},
 			{
 				"command": "vscode-cvs.commit_content",
-				"title": "CodeCVS: smart commit from local directory"
+				"title": "CodeCVS: commit content"
 			},
 			{
 				"command": "vscode-cvs.add",
@@ -44,7 +44,7 @@
 			},
 			{
 				"command": "vscode-cvs.show",
-				"title": "CodeCVS: show changes in local directory"
+				"title": "CodeCVS: changes"
 			},
 			{
 				"command": "vscode-cvs.checkout",
@@ -128,7 +128,5 @@
 		"webpack-cli": "^3.3.12"
 	},
 	"extensionDependencies": [],
-	"dependencies": {
-		"lodash": "^4.17.4"
-	}
+	"dependencies": {}
 }
