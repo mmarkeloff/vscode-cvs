@@ -5,9 +5,9 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import Store from '../store';
-import Utils from '../utils';
-import CVS from './cvs';
+import Store from './store';
+import Utils from './utils';
+import CVS from './cli_cvs_clnt_wrap';
 
 /*******************************************************************/
 /**

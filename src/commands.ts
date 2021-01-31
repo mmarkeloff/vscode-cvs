@@ -4,14 +4,16 @@
  */
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import {spawn} from 'child_process';
 import Store from './store';
 import Utils from './utils';
-import * as commiter from './cvs/commiter';
-import * as adder from './cvs/adder';
-import * as shower from './cvs/shower';
-import * as checkouter from './cvs/checkouter';
-import * as comparator from './cvs/comparator';
-import * as updater from './cvs/updater';
+import * as commiter from './cvs_commit';
+import * as adder from './cvs_add';
+import * as shower from './cvs_show';
+import * as checkouter from './cvs_checkout';
+import * as comparator from './cvs_compare';
+import * as updater from './cvs_update';
+import * as message_form from './message_form';
 
 /*******************************************************************/
 /**
@@ -31,24 +33,20 @@ async function commit(fileUri: any, store: Store) {
         return vscode.window.showErrorMessage('You cannot commit an unopened or unsaved file');
     }
 
-	const comment = await vscode.window.showInputBox({
-		value: store.getLastComment(),
-        placeHolder: 'Input comment for your commit here',
-        validateInput: text => {
-			return text === '' ? 'Please input comment' : null;
-		}
-    });
+    const workDir = Utils.folder.getRoot(opened);
 
+    const comment = await message_form.commit_message_form(store, Utils.folder.getRelative(opened, workDir as string));
     if (comment !== undefined) {
-        const workDir = Utils.folder.getRoot(opened);
         const file = Utils.folder.getRelative(opened, workDir as string);
+        const msg = 
+            comment === '' ? 
+            `Are you sure want to commit opened file in current window: ${file} with empty comment?`
+            :
+            `Are you sure want to commit opened file in current window: ${file} with comment: ${comment}?`;
 
-        vscode.window.showInformationMessage(
-            `Are you sure want to commit opened file in current window: ${file} with comment: ${comment}?`
-        );
+        const choice = await vscode.window.showWarningMessage(msg, { modal: true }, "Yes");
 
-	    const choice = await vscode.window.showQuickPick(['yes', 'no'], {placeHolder: 'yes or no'});
-        if (choice === 'yes') {
+        if (choice === "Yes") {
             let cvs: commiter.ICommiter = new commiter.OpenedFileCommiter(
                 cvsRoot as string, workDir as string, comment!, file);
 
@@ -69,29 +67,60 @@ async function commit_content(fileUri: any, store: Store) {
         return vscode.window.showErrorMessage('Unable to get vscode-cvs.CVSROOT variable');
     }
 
-	const comment = await vscode.window.showInputBox({
-		value: store.getLastComment(),
-        placeHolder: 'Input comment for your commit here',
-        validateInput: text => {
-			return text === '' ? 'Please input comment' : null;
-		}
-    });
+    let changes: String = '';
+    const workDir = Utils.folder.getSelected(fileUri);
+    let proc = spawn(
+        'cvs', 
+        ['-d', cvsRoot as string, '-qn', 'update'], 
+        {cwd: workDir})
+        .on("close", async (code, signal) => {
+            if (code) {
+                vscode.window.showErrorMessage(
+                    `Unable to get changes in local directory: ${workDir}`
+                );
+            }
+            else {
+                // Array of paths with prefix 'X '
+                const files = changes.replace(/[\r\n]/g, '\n').split('\n');
 
-    if (comment !== undefined) {
-        const workDir = Utils.folder.getSelected(fileUri);
+                if (files && files.length && files[0] !== '') {
+                    const comment = await message_form.commit_content_message_form(store, 
+                        files.filter(element => element !== '')
+                    );
 
-        vscode.window.showInformationMessage(
-            `Are you sure want to commit files from local directory: ${workDir} with comment: ${comment}?`
-        );
+                    if (comment !== undefined) {
+                        const msg = comment === '' ? 
+                            `Are you sure want to commit files from local directory: ${workDir} with empty comment?`
+                            :
+                            `Are you sure want to commit files from local directory: ${workDir} with comment: ${comment}?`;
 
-	    const choice = await vscode.window.showQuickPick(['yes', 'no'], {placeHolder: 'yes or no'});
-        if (choice === 'yes') {
-            let cvs: commiter.ICommiter = new commiter.SelectedDirContentCommiter(
-                cvsRoot as string, workDir, comment!);
+                        const choice = await vscode.window.showWarningMessage(msg, { modal: true }, "Yes");
+                        if (choice === "Yes") {
+                            let cvs: commiter.ICommiter = new commiter.SelectedDirContentCommiter(
+                                cvsRoot as string, workDir, comment!, files.filter(element => element !== ''));
+            
+                            cvs.commit(store);
+                        }
+                    }
+                }
+                else {
+                    vscode.window.showInformationMessage(
+                        `There is no changes in local directory: ${workDir}`, {modal: true});
+                }
+            }
+        });
 
-            cvs.commit(store);
-        }
-    }
+        proc.stdout
+            .on("data", (chunk: string | Buffer) => {
+                // Collect changes
+                changes += chunk.toString();
+            });
+
+        proc.stderr
+            .on("data", (chunk: string | Buffer) => {
+                // Print stderr to OUTPUT tab
+                store.printToLog(chunk as string);
+            });
 }
 
 /*******************************************************************/

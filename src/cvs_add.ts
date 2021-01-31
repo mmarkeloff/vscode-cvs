@@ -3,8 +3,8 @@
  * Imports
  */
 import {window} from 'vscode';
-import Store from '../store';
-import CVS from './cvs';
+import Store from './store';
+import CVS from './cli_cvs_clnt_wrap';
 
 /*******************************************************************/
 /**

@@ -3,7 +3,7 @@
  * Imports
  */
 import {spawn} from 'child_process';
-import Store from '../store';
+import Store from './store';
 
 /*******************************************************************/
 /**

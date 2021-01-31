@@ -4,8 +4,8 @@
  */
 import {spawn} from 'child_process';
 import {window} from 'vscode';
-import Store from '../store';
-import CVS from './cvs';
+import Store from './store';
+import CVS from './cli_cvs_clnt_wrap';
 
 /*******************************************************************/
 /**
@@ -82,6 +82,7 @@ class SelectedDirContentCommiter implements ICommiter {
     m_CVSRoot: string;
     m_WorkDir: string;
     m_Comment: string;
+    m_Files: string[];
 
     /**
      * Create an object
@@ -89,53 +90,11 @@ class SelectedDirContentCommiter implements ICommiter {
      * @param workDir Working directory for run CLI CVS client
      * @param comment Commit comment
      */
-    constructor(cvsRoot: string, workDir: string, comment: string) {
+    constructor(cvsRoot: string, workDir: string, comment: string, files: string[]) {
         this.m_CVSRoot = cvsRoot;
         this.m_WorkDir = workDir;
         this.m_Comment = comment;
-    }
-
-    /**
-     * Remove or add + commit some object
-     * @param objWithPref Object path with prefix 'X '
-     * @param cvs CVS operations executer
-     */
-    private async careObj(objWithPref: string, cvs: CVS) {
-        // Make pure path from path with prefix
-        // example: objWithPref='M a/b/c.txt' => obj='a/b/c.txt'
-        let obj = objWithPref.slice(2);
-
-        // User remove file or directory
-        if (objWithPref.startsWith('U ')) {
-            // Waiting for the command to complete
-            const code = await cvs.onRemove(obj);
-            if (code) {
-                window.showErrorMessage(`Unable to remove: ${obj}`);
-            }
-            else {
-                window.showInformationMessage(`File or directory: ${obj} has been removed`);
-            }
-        } 
-        // User add file or directory
-        else if (objWithPref.startsWith('? ')) {
-            // Waiting for the command to complete
-            const code = await cvs.onAddCommon(obj);
-            if (code) {
-                window.showErrorMessage(`Unable to add: ${obj}`);
-            }
-            else {
-                window.showInformationMessage(`File or directory: ${obj} has been added`);
-            }
-        }
-
-        // Waiting for the command to complete
-        const code = await cvs.onCommit(obj, this.m_Comment);
-        if (code) {
-            window.showErrorMessage(`Unable to commit: ${obj}`);
-        }
-        else {
-            window.showInformationMessage(`File or directory: ${obj} has been commited`);
-        }
+        this.m_Files = files;
     }
 
     /**
@@ -143,44 +102,44 @@ class SelectedDirContentCommiter implements ICommiter {
      * @param store Stores some runtime info
      */
     async commit(store: Store) {
-        // Stores changes in working directory
-        let changes: String = '';
         let cvs: CVS = new CVS(this.m_CVSRoot, this.m_WorkDir, store);
+        for (const file of this.m_Files) {
+            // Make pure path from path with prefix
+            // example: objWithPref='M a/b/c.txt' => obj='a/b/c.txt'
+            let obj = file.slice(2);
 
-        let proc = spawn(
-            'cvs', 
-            ['-d', this.m_CVSRoot, '-qn', 'update'], 
-            {cwd: this.m_WorkDir})
-            .on("close", async (code, signal) => {
+            // User remove file or directory
+            if (file.startsWith('U ')) {
+                // Waiting for the command to complete
+                const code = await cvs.onRemove(obj);
                 if (code) {
-                    window.showErrorMessage(
-                        `Unable to get changes in local directory: ${this.m_WorkDir}`
-                    );
+                    window.showErrorMessage(`Unable to remove: ${obj}`);
                 }
                 else {
-                    // Array of paths with prefix 'X '
-                    const withPref = changes.replace(/[\r\n]/g, '\n').split('\n');
-
-                    for (const objWithPref of withPref) {
-                        // Skip last element
-                        if (objWithPref !== '') {
-                            this.careObj(objWithPref, cvs);
-                        }
-                    }
+                    window.showInformationMessage(`File or directory: ${obj} has been removed`);
                 }
-            });
+            } 
+            // User add file or directory
+            else if (file.startsWith('? ')) {
+                // Waiting for the command to complete
+                const code = await cvs.onAddCommon(obj);
+                if (code) {
+                    window.showErrorMessage(`Unable to add: ${obj}`);
+                }
+                else {
+                    window.showInformationMessage(`File or directory: ${obj} has been added`);
+                }
+            }
 
-            proc.stdout
-                .on("data", (chunk: string | Buffer) => {
-                    // Collect changes
-                    changes += chunk.toString();
-                });
-
-            proc.stderr
-                .on("data", (chunk: string | Buffer) => {
-                    // Print stderr to OUTPUT tab
-                    store.printToLog(chunk as string);
-                });
+            // Waiting for the command to complete
+            const code = await cvs.onCommit(obj, this.m_Comment);
+            if (code) {
+                window.showErrorMessage(`Unable to commit: ${obj}`);
+            }
+            else {
+                window.showInformationMessage(`File or directory: ${obj} has been commited`);
+            }
+        }
     }
 }
 
