@@ -4,6 +4,11 @@ All notable changes to the `CodeCVS` extension will be documented in this file.
 
 ## Release Notes
 
+### 0.0.8
+
+Fixed:
+* #3
+
 ### 0.0.7
 
 Added:

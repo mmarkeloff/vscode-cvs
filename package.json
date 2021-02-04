@@ -2,7 +2,7 @@
 	"name": "vscode-cvs",
 	"displayName": "CodeCVS",
 	"description": "VS Code extension for CVS",
-	"version": "0.0.8",
+	"version": "0.1.0",
 	"license": "MIT",
 	"author": "Max Markeloff",
 	"publisher": "mmarkeloff",
@@ -19,10 +19,11 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-cvs.commit",
 		"onCommand:vscode-cvs.commit_content",
-		"onCommand:vscode-cvs.add",
-		"onCommand:vscode-cvs.show",
+        "onCommand:vscode-cvs.add",
+        "onCommand:vscode-cvs.add_content",
+        "onCommand:vscode-cvs.remove_content",
+		"onCommand:vscode-cvs.show_changes",
 		"onCommand:vscode-cvs.checkout",
 		"onCommand:vscode-cvs.compare",
 		"onCommand:vscode-cvs.update"
@@ -31,24 +32,28 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "vscode-cvs.commit",
-				"title": "CodeCVS: commit"
-			},
-			{
 				"command": "vscode-cvs.commit_content",
-				"title": "CodeCVS: commit content"
+				"title": "CodeCVS: commit ..."
 			},
 			{
 				"command": "vscode-cvs.add",
 				"title": "CodeCVS: add"
+            },
+            {
+				"command": "vscode-cvs.add_content",
+				"title": "CodeCVS: add ..."
+            },
+            {
+				"command": "vscode-cvs.remove_content",
+				"title": "CodeCVS: remove ..."
 			},
 			{
-				"command": "vscode-cvs.show",
+				"command": "vscode-cvs.show_changes",
 				"title": "CodeCVS: changes"
 			},
 			{
 				"command": "vscode-cvs.checkout",
-				"title": "CodeCVS: checkout ..."
+				"title": "CodeCVS: checkout"
 			},
 			{
 				"command": "vscode-cvs.compare",
@@ -67,12 +72,23 @@
 					"group": "CodeCVS"
 				},
 				{
+                    "when": "explorerResourceIsFolder",
 					"command": "vscode-cvs.add",
+					"group": "CodeCVS"
+                },
+                {
+					"when": "explorerResourceIsFolder",
+					"command": "vscode-cvs.add_content",
+					"group": "CodeCVS"
+                },
+                {
+					"when": "explorerResourceIsFolder",
+					"command": "vscode-cvs.remove_content",
 					"group": "CodeCVS"
 				},
 				{
 					"when": "explorerResourceIsFolder",
-					"command": "vscode-cvs.show",
+					"command": "vscode-cvs.show_changes",
 					"group": "CodeCVS"
 				},
 				{
@@ -91,9 +107,13 @@
 			"type": "object",
 			"title": "CVS configuration",
 			"properties": {
-				"vscode-cvs.CVSROOT": {
+				"CodeCVS.CVSROOT": {
 					"type": "string",
 					"description": "CVSROOT variable"
+                },
+                "CodeCVS.add_as_binary": {
+					"type": "number",
+					"description": "Add uncontrolled files as binary"
 				}
 			}
 		}

@@ -1,33 +1,31 @@
-/*******************************************************************/
+////////////////////////////////////////////////////////////////////
 /**
  * Imports
  */
-import * as _ from 'lodash';
 import * as vscode from 'vscode';
-import Store from './store';
+import * as _ from 'lodash';
+import * as fs from 'fs';
+
+import ExtensionVDB from './vdb';
+import {ExtensionChannel} from './log';
 import * as Commands from './commands';
 
-/*******************************************************************/
+////////////////////////////////////////////////////////////////////
 /**
- * Some functions
+ * Utilities
  */
 const Utils = {
-    /**
-     * Initialize commands
-     */
-    initCommands(context: vscode.ExtensionContext) {
-        // Stores some runtime info
-        let store: Store = new Store(vscode.window.createOutputChannel("vscode-cvs"));
+    init_commands(context: vscode.ExtensionContext) {
+        const logger = new ExtensionChannel(vscode.window.createOutputChannel("CodeCVS"));
+        const vdb = new ExtensionVDB();
 
-        const {commands} = vscode!.extensions!.getExtension('mmarkeloff.vscode-cvs' )!.packageJSON.contributes;
+        const {commands} = vscode!.extensions!.getExtension('mmarkeloff.vscode-cvs')!.packageJSON.contributes;
         commands.forEach(({command}: any) => {
-            // commit, add, checkout, etc..
             const commandName = _.last(command.split('.')) as string;
-            // command callback
-            const handler = (Commands as any)[commandName];
 
+            const handler = (Commands as any)[commandName];
             const disposable = vscode.commands.registerCommand(command, (fileUri) => {
-                handler(fileUri, store)
+                handler(fileUri, vdb, logger)
             });
 
             context.subscriptions.push(disposable);
@@ -36,12 +34,27 @@ const Utils = {
         return Commands;
     },
 
-    file: {
-        /**
-         * Move single file
-         * @param lhs Source
-         * @param rhs Destination
-         */
+    /**
+     * Extension utilities
+     */
+    Extension: {
+        get_cvs_root() {
+            return vscode.workspace.getConfiguration('CodeCVS').get('CVSROOT');
+        },
+
+        is_add_as_binary() {
+            const addAsBinary = vscode.workspace.getConfiguration('CodeCVS').get('add_as_binary');
+            if (!addAsBinary || 0 == addAsBinary)
+                return false;
+            
+            return true;
+        }
+    },
+
+    /**
+     * File utilities
+     */
+    File: {
         mv(lhs: string, rhs: string): Promise<number> {
             const fs = require('fs');
             return new Promise((resolve, reject)  => {
@@ -49,58 +62,69 @@ const Utils = {
                     resolve(err);
                 });
             });
+        },
+
+        is_file(file_path: string) {
+            try {
+                const stat = fs.lstatSync(file_path);
+                return stat.isFile();
+            } catch (e) {
+                return false;
+            }
+        },
+
+        getModified(files: string) {
+            return files.split('\n').filter(file => file.startsWith('M ')).map(file => file.slice(2));
+        },
+
+        getAdded(files: string) {
+            return files.split('\n').filter(file => file.startsWith('A ')).map(file => file.slice(2));
+        },
+
+        getRemoved(files: string) {
+            return files.split('\n').filter(file => file.startsWith('R ')).map(file => file.slice(2));
+        },
+
+        getUncontrolled(files: string) {
+            return files.split('\n').filter(file => file.startsWith('? ')).map(file => file.slice(2));
+        },
+
+        getUpdated(files: string) {
+            return files.split('\n').filter(file => file.startsWith('U ')).map(file => file.slice(2));
         }
     },
 
-    folder: {
-        /**
-         * Get root directory path
-         * @param base Base directory path
-         */
-        getRoot(base?: string) {
+    /**
+     * Folder utilities
+     */
+    Path: {
+        get_root_path(base_path?: string) {
             const {workspaceFolders} = vscode.workspace;
             if (!workspaceFolders)
                 return;
 
             const firstRoot = workspaceFolders[0].uri.fsPath;
-            if (!base)
+            if (!base_path)
                 return firstRoot;
 
             const rootPaths = workspaceFolders.map(folder => folder.uri.fsPath);
             const sortedRootPaths = _.sortBy(rootPaths, [(path: string | any[]) => path.length]).reverse();
 
-            return sortedRootPaths.find((rootPath: string) => base.startsWith(rootPath));
+            return sortedRootPaths.find((rootPath: string) => base_path.startsWith(rootPath));
         },
 
-        /**
-         * Get selected object path in VS Code explorer
-         * @param fileUri Stores path of selected file/directory in VS Code explorer
-         */
-        getSelected(fileUri: any) {
-            return fileUri === undefined ? this.getRoot() : fileUri.fsPath;
+        get_selected(file_uri: any) {
+            return file_uri === undefined ? this.get_root_path() : file_uri.fsPath;
         },
 
-        /**
-         * Get relative object path 
-         * @param fullPath Full object path
-         * @param base Base path
-         */
-        getRelative(fullPath: string, base: string) {
-            return fullPath.replace(base + '/', '');
-        }
-    },
-
-    config: {
-        /**
-         * Get vscode.cvs.CVSROOT variable
-         */
-        getCVSRoot() {
-            return vscode.workspace.getConfiguration('vscode-cvs').get('CVSROOT');
+        get_relative(full_path: string, base_path: string) {
+            const path = require('path')
+            return full_path.replace(base_path + path.sep, '');
         }
     }
 };
 
-/*******************************************************************/
+////////////////////////////////////////////////////////////////////
 /**
  * Exports
  */
