@@ -3,6 +3,7 @@
  * Imports
  */
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 
 import CVS from './cvs';
 import ExtensionVDB from './vdb';
@@ -29,7 +30,6 @@ async function commit_content(file_uri: any, vdb: ExtensionVDB, logger: Extensio
     const cvs = new CVS(cvsRoot as string, workDir, vdb, logger);
 
     const res = await cvs.onGetChanges();
-    console.log(res);
     if (res[0]) {
         new messages.ErrorMessage(`Unable to get changes in local copy of repository: ${workDir}`).show();
     }
@@ -180,9 +180,12 @@ async function remove_content(file_uri: any, vdb: ExtensionVDB, logger: Extensio
     }
     else {
         if (res[1]) {
-            const updated = Utils.File.getUpdated(res[1]);
-            if (updated.length) {
-                const filesToRemove = await webview_panel.remove_content_panel(updated);
+            const path = require('path')
+            
+            const notExisted = Utils.File.getUpdated(res[1]).filter(file => !fs.existsSync(workDir + path.sep + file));
+            console.log(notExisted);
+            if (notExisted.length) {
+                const filesToRemove = await webview_panel.remove_content_panel(notExisted);
                 if (filesToRemove && filesToRemove.length) {
                     for (const file of filesToRemove) {
                         const cvs = new cvs_remove.RemoveSelectedFile(cvsRoot as string, workDir as string, file);

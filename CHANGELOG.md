@@ -4,6 +4,17 @@ All notable changes to the `CodeCVS` extension will be documented in this file.
 
 ## Release Notes
 
+### 0.1.1
+
+Fixed:
+* Display only removed files by "CodeCVS: remove ..."
+* #2 1)
+
+### 0.1.0
+
+Fixed:
+* #2
+
 ### 0.0.8
 
 Fixed:

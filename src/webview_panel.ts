@@ -356,8 +356,16 @@ async function commit_content_panel(
         });
 
         btnCompare.addEventListener("click", function() {
+            var filesToCompare = [];
+            for (var i in files) {
+                const checkbox = document.getElementById(files[i]);
+                if (checkbox.checked) 
+                    filesToCompare.push(files[i]);
+            }
+
             vscode.postMessage({
-              command: "compare"
+              command: "compare",
+              message: filesToCompare
             });
         });
 
@@ -379,16 +387,18 @@ async function commit_content_panel(
             resolve(undefined);
         });
 
-        const compare = async () => {
+        const compare = async (filesToCompare: string[]) => {
             for (const file of modified_files) {
-	            let cvs = new CompareFileWithLatestCleanCopy(
-                    cvs_root as string, 
-                    work_dir as string, 
-                    file, 
-                    work_dir + path.sep + file
-                );
+                if (filesToCompare.includes(file)) {
+	                let cvs = new CompareFileWithLatestCleanCopy(
+                        cvs_root as string, 
+                        work_dir as string, 
+                        file, 
+                        work_dir + path.sep + file
+                    );
 
-                await cvs.compare(vdb, logger);
+                    await cvs.compare(vdb, logger);
+                }
             }
         };
 
@@ -405,7 +415,7 @@ async function commit_content_panel(
                     break;
                 }
                 case "compare": {
-                    compare();
+                    compare(message.message);
                     break;
                 }
                 default: {
