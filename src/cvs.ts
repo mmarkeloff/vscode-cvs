@@ -100,10 +100,10 @@ class CVS {
         });
     }
 
-    onCommit(path: string, comment: string): Promise<number> {
+    onCommit(paths: string[], comment: string): Promise<number> {
         const proc = spawn(
             'cvs', 
-            ['-d', this.m_CVSRoot, 'commit', '-m', comment, path], 
+            ['-d', this.m_CVSRoot, 'commit', '-m', comment].concat(paths), 
             {cwd: this.m_WorkDir}
         );
 

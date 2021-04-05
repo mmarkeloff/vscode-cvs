@@ -46,7 +46,7 @@ class CommitOpenedFile implements ICommit {
     async commit(vdb: ExtensionVDB, logger: ExtensionChannel) {
         const cvs = new CVS(this.m_CVSRoot, this.m_WorkDir, vdb, logger);
 
-        const code = await cvs.onCommit(this.m_OpenedFilePath, this.m_Comment);
+        const code = await cvs.onCommit([this.m_OpenedFilePath], this.m_Comment);
         if (code) {
             return new ErrorMessage(
                 `Unable to commit opened file in current window: ${this.m_OpenedFilePath} to repository`
@@ -86,14 +86,17 @@ class CommitContent implements ICommit {
 
     async commit(vdb: ExtensionVDB, logger: ExtensionChannel) {
         const cvs = new CVS(this.m_CVSRoot, this.m_WorkDir, vdb, logger);
-        for (const file of this.m_FilePaths) {
-            const code = await cvs.onCommit(file, this.m_Comment);
+        if (this.m_FilePaths.length > 0) {
+            const code = await cvs.onCommit(this.m_FilePaths, this.m_Comment);
             if (code) {
-                new ErrorMessage(`Unable to commit selected file: ${file} to repository`).show();
+                new ErrorMessage(`Unable to commit selected files: "${this.m_FilePaths.join(" ")}" to repository`).show();
             }
             else {
-                new InfoMessage(`Selected file: ${file} has been commited to repository`).show();
+                new InfoMessage(`Selected files: "${this.m_FilePaths.join(" ")}" have been commited to repository`).show();
             }
+        }
+        else {
+            new ErrorMessage(`No files have been selected to be committed`).show();
         }
     }
 }

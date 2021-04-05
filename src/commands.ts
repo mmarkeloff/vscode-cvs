@@ -11,7 +11,7 @@ import {ExtensionChannel} from './log';
 import Utils from './utils';
 import * as cvs_commit from './commit';
 import * as cvs_add from './add';
-import * as cvs_remove from './remove'
+import * as cvs_remove from './remove';
 import * as cvs_show_changes from './show_changes';
 import * as cvs_checkout from './checkout';
 import * as cvs_compare from './compare';
