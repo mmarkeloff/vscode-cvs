@@ -201,6 +201,7 @@ async function commit_content_panel(
         <label>
             <input type="hidden" name="${file}" value="">
             <input required="required" class="${file}" id="${file}" type="checkbox" name="${file}" value="value" checked>${file}
+            <a href="#" id="compare${file}" onclick="compareFiles(['${file}'])">compare</a>
         </label>
     </div>
 `;
@@ -316,14 +317,18 @@ async function commit_content_panel(
         const btnCompare = document.getElementById("compare");
 
         txtMessage.value = ${JSON.stringify(message)};
-
-        btnCommit.addEventListener("click", function() {
-            var filesToCommit = [];
+        
+        function selectedFiles() {
+            var selected = [];
             for (var i in files) {
                 const checkbox = document.getElementById(files[i]);
                 if (checkbox.checked) 
-                    filesToCommit.push(files[i]);
+                    selected.push(files[i]);
             }
+            return selected;
+        }
+        btnCommit.addEventListener("click", function() {
+            var filesToCommit = selectedFiles();
 
             vscode.postMessage({
                 command: "commit",
@@ -355,18 +360,15 @@ async function commit_content_panel(
             }, 1000);
         });
 
-        btnCompare.addEventListener("click", function() {
-            var filesToCompare = [];
-            for (var i in files) {
-                const checkbox = document.getElementById(files[i]);
-                if (checkbox.checked) 
-                    filesToCompare.push(files[i]);
-            }
-
+        function compareFiles(filesToCompare) {
             vscode.postMessage({
-              command: "compare",
-              message: filesToCompare
+            command: "compare",
+            message: filesToCompare
             });
+        }
+
+        btnCompare.addEventListener("click", function () {
+            compareFiles(selectedFiles())
         });
 
         window.addEventListener("message", function(event) {
