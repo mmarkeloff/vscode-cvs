@@ -4,6 +4,12 @@ All notable changes to the `CodeCVS` extension will be documented in this file.
 
 ## Release Notes
 
+### 0.1.2
+
+Fixed:
+* #8 Open diff window for a single file from the commit window
+* #11 Committing multiple files does a separate commit for each file
+
 ### 0.1.1
 
 Fixed:

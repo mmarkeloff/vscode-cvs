@@ -2,7 +2,7 @@
 	"name": "vscode-cvs",
 	"displayName": "CodeCVS",
 	"description": "VS Code extension for CVS",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "MIT",
 	"author": "Max Markeloff",
 	"publisher": "mmarkeloff",
